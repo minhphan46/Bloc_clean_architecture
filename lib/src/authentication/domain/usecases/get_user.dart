@@ -3,8 +3,8 @@ import 'package:bloc_clear_architecture/core/utils/typedef.dart';
 import 'package:bloc_clear_architecture/src/authentication/domain/entities/user.dart';
 import 'package:bloc_clear_architecture/src/authentication/domain/repositories/authentication_repository.dart';
 
-class CreateUser extends UsecaseWithoutParams<List<User>> {
-  const CreateUser(this._repository);
+class GetUsers extends UsecaseWithoutParams<List<User>> {
+  const GetUsers(this._repository);
 
   final AuthenticationRepository _repository;
 

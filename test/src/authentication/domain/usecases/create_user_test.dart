@@ -10,8 +10,7 @@ import 'package:bloc_clear_architecture/src/authentication/domain/usecases/creat
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-
-class MockAuthRepo extends Mock implements AuthenticationRepository {}
+import 'authentication_repository.mock.dart';
 
 void main() {
   late CreateUser usecase;
@@ -38,7 +37,11 @@ void main() {
       // act
       final result = await usecase(params);
       // assert
-      expect(result, equals(const Right<dynamic, void>(null)));
+      expect(
+          result,
+          equals(
+              const Right<dynamic, void>(null))); // check the result is Right
+      // check the method is called once
       verify(
         () => repository.createUser(
           createdAt: params.createAt,
@@ -46,7 +49,7 @@ void main() {
           avatar: params.avatar,
         ),
       ).called(1);
-
+      // check no more interaction
       verifyNoMoreInteractions(repository);
     },
   );
