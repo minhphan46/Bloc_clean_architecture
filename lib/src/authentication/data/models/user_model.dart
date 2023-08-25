@@ -19,7 +19,7 @@ class UserModel extends User {
       : this(
           id: "_empty.id",
           name: "_empty.name",
-          createAt: "_empty.createAt",
+          createAt: "_empty.createdAt",
           avatar: "_empty.avatar",
         );
 
@@ -45,15 +45,15 @@ class UserModel extends User {
       : this(
           id: json['id'] as String,
           name: json['name'] as String,
-          createAt: json['createAt'] as String,
+          createAt: json['createdAt'] as String,
           avatar: json['avatar'] as String,
         );
 
   DataMap toMap() {
     return {
       'id': id,
+      'createdAt': createAt,
       'name': name,
-      'createAt': createAt,
       'avatar': avatar,
     };
   }

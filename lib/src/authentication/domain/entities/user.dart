@@ -14,7 +14,7 @@ class User extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id];
+  List<Object?> get props => [id, name, avatar];
 
   const User.empty()
       : this(
@@ -23,5 +23,4 @@ class User extends Equatable {
           createAt: "_empty.createAt",
           avatar: "_empty.avatar",
         );
-
 }
