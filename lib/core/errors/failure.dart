@@ -1,3 +1,4 @@
+import 'package:bloc_clear_architecture/core/errors/exceptions.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class Failure extends Equatable {
@@ -20,5 +21,12 @@ class ApiFailure extends Failure {
   }) : super(
           message: message,
           statusCode: statusCode,
+        );
+
+  ApiFailure.fromException(
+    ApiException exception,
+  ) : this(
+          message: exception.message,
+          statusCode: exception.statusCode,
         );
 }

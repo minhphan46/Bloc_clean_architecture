@@ -2,6 +2,7 @@ import 'package:bloc_clear_architecture/core/errors/exceptions.dart';
 import 'package:bloc_clear_architecture/core/errors/failure.dart';
 import 'package:bloc_clear_architecture/src/authentication/data/datasources/authenrication_remote_data_source.dart';
 import 'package:bloc_clear_architecture/src/authentication/data/repositories/authentication_repository_impl.dart';
+import 'package:bloc_clear_architecture/src/authentication/domain/entities/user.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -72,10 +73,56 @@ void main() {
         result,
         equals(
           Left(
-            ApiFailure(
-              message: tException.message,
-              statusCode: tException.statusCode,
-            ),
+            ApiFailure.fromException(tException),
+          ),
+        ),
+      );
+      verify(() => remoteDataSource.createUser(
+            createdAt: createdAt,
+            name: name,
+            avatar: avatar,
+          )).called(1);
+      verifyNoMoreInteractions(remoteDataSource);
+    });
+  });
+
+  group("getUsers", () {
+    const createdAt = 'whatever.createdAt';
+    const name = 'whatever.name';
+    const avatar = 'whatever.avatar';
+
+    test(
+        "should call the [RemoteDataSource.getUsers] and return [List<User>] when call to remote source is successfull",
+        () async {
+      // arrange
+      when(() => remoteDataSource.getUsers()).thenAnswer(
+        (_) async => [],
+      );
+
+      // act
+      final result = await repoImpl.getUsers();
+
+      // assert
+      expect(result, isA<Right<dynamic, List<User>>>());
+      // check that remote source's createUSer is called and with right data
+      verify(() => remoteDataSource.getUsers()).called(1);
+      // verify that there is no interaction with the remote source
+      verifyNoMoreInteractions(remoteDataSource);
+    });
+
+    test(
+        "should return a [APIFailure] when the call to the remote source is unsuccessful",
+        () async {
+      // arrange
+      when(() => remoteDataSource.getUsers()).thenThrow(tException);
+
+      final result = await repoImpl.getUsers();
+
+      expect(
+        result,
+        equals(
+          Left(
+            ApiFailure.fromException(tException),
           ),
         ),
       );
