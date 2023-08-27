@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bloc_clear_architecture/core/errors/exceptions.dart';
 import 'package:bloc_clear_architecture/core/utils/constants.dart';
 import 'package:bloc_clear_architecture/src/authentication/data/datasources/authenrication_remote_data_source.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,13 +27,49 @@ void main() {
         (_) async => http.Response("User created successfully", 201),
       );
 
-      final methodCall = remoteDataSource.createUser(
-        createdAt: "createAt",
-        name: "name",
-        avatar: "avatar",
+      final methodCall = remoteDataSource.createUser;
+
+      expect(
+          methodCall(
+            createdAt: "createAt",
+            name: "name",
+            avatar: "avatar",
+          ),
+          completes);
+
+      verify(() => client.post(
+            Uri.parse("$kBaseUrl/$kCreateUserEndpoint"),
+            body: jsonEncode({
+              "createdAt": "createAt",
+              "name": "name",
+              "avatar": "avatar",
+            }),
+          )).called(1);
+
+      verifyNoMoreInteractions(client);
+    });
+
+    test("should throw [APIException] when the status code is not 200 or 201",
+        () async {
+      when(
+        () => client.post(any(), body: any(named: "body")),
+      ).thenAnswer(
+        (_) async => http.Response("Invalid email address", 400),
       );
 
-      expect(methodCall, completes);
+      final methodCall = remoteDataSource.createUser;
+
+      expect(
+        () async => methodCall(
+          createdAt: "createAt",
+          name: "name",
+          avatar: "avatar",
+        ),
+        throwsA(const ApiException(
+          message: 'Invalid email address',
+          statusCode: 400,
+        )),
+      );
 
       verify(() => client.post(
             Uri.parse("$kBaseUrl/$kCreateUserEndpoint"),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bloc_clear_architecture/core/errors/exceptions.dart';
 import 'package:bloc_clear_architecture/core/utils/constants.dart';
 import 'package:bloc_clear_architecture/src/authentication/data/models/user_model.dart';
 import 'package:http/http.dart' as http;
@@ -30,14 +31,27 @@ class AuthRemoteDataSrcImpl implements AuthenticationRemoteDataSource {
   }) async {
     // 1. check to make sure that it returns the right data when the response code is 200 or the proper response code
     // 2. check to make sure that it throws an exception when the response code is not bad one
-    final response = await _client.post(
-      Uri.parse("$kBaseUrl/$kCreateUserEndpoint"),
-      body: jsonEncode({
-        "createdAt": createdAt,
-        "name": name,
-        "avatar": avatar,
-      }),
-    );
+    try {
+      final response = await _client.post(
+        Uri.parse("$kBaseUrl/$kCreateUserEndpoint"),
+        body: jsonEncode({
+          "createdAt": createdAt,
+          "name": name,
+          "avatar": avatar,
+        }),
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw ApiException(
+          message: response.body,
+          statusCode: response.statusCode,
+        );
+      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(message: e.toString(), statusCode: 505);
+    }
   }
 
   @override
