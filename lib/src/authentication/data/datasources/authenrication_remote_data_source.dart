@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:bloc_clear_architecture/core/utils/constants.dart';
 import 'package:bloc_clear_architecture/src/authentication/data/models/user_model.dart';
 import 'package:http/http.dart' as http;
 
@@ -10,6 +13,9 @@ abstract class AuthenticationRemoteDataSource {
 
   Future<List<UserModel>> getUsers();
 }
+
+const kCreateUserEndpoint = '/users';
+const kGetUserEndpoint = '/users';
 
 class AuthRemoteDataSrcImpl implements AuthenticationRemoteDataSource {
   final http.Client _client;
@@ -24,6 +30,14 @@ class AuthRemoteDataSrcImpl implements AuthenticationRemoteDataSource {
   }) async {
     // 1. check to make sure that it returns the right data when the response code is 200 or the proper response code
     // 2. check to make sure that it throws an exception when the response code is not bad one
+    final response = await _client.post(
+      Uri.parse("$kBaseUrl/$kCreateUserEndpoint"),
+      body: jsonEncode({
+        "createdAt": createdAt,
+        "name": name,
+        "avatar": avatar,
+      }),
+    );
   }
 
   @override
