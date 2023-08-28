@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bloc_clear_architecture/core/errors/exceptions.dart';
 import 'package:bloc_clear_architecture/core/utils/constants.dart';
+import 'package:bloc_clear_architecture/core/utils/typedef.dart';
 import 'package:bloc_clear_architecture/src/authentication/data/models/user_model.dart';
 import 'package:http/http.dart' as http;
 
@@ -33,7 +34,7 @@ class AuthRemoteDataSrcImpl implements AuthenticationRemoteDataSource {
     // 2. check to make sure that it throws an exception when the response code is not bad one
     try {
       final response = await _client.post(
-        Uri.parse("$kBaseUrl/$kCreateUserEndpoint"),
+        Uri.https(kBaseUrl, kCreateUserEndpoint),
         body: jsonEncode({
           "createdAt": createdAt,
           "name": name,
@@ -55,8 +56,24 @@ class AuthRemoteDataSrcImpl implements AuthenticationRemoteDataSource {
   }
 
   @override
-  Future<List<UserModel>> getUsers() {
-    // TODO: implement getUsers
-    throw UnimplementedError();
+  Future<List<UserModel>> getUsers() async {
+    try {
+      final response = await _client.get(Uri.https(kBaseUrl, kGetUserEndpoint));
+
+      if (response.statusCode != 200) {
+        throw ApiException(
+          message: response.body,
+          statusCode: response.statusCode,
+        );
+      }
+
+      return List<DataMap>.from(jsonDecode(response.body) as List)
+          .map((userData) => UserModel.fromMap(userData))
+          .toList();
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(message: e.toString(), statusCode: 505);
+    }
   }
 }

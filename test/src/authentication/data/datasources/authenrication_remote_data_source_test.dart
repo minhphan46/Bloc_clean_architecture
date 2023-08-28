@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:bloc_clear_architecture/core/errors/exceptions.dart';
 import 'package:bloc_clear_architecture/core/utils/constants.dart';
 import 'package:bloc_clear_architecture/src/authentication/data/datasources/authenrication_remote_data_source.dart';
+import 'package:bloc_clear_architecture/src/authentication/data/models/user_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
@@ -38,7 +39,7 @@ void main() {
           completes);
 
       verify(() => client.post(
-            Uri.parse("$kBaseUrl/$kCreateUserEndpoint"),
+            Uri.https(kBaseUrl, kCreateUserEndpoint),
             body: jsonEncode({
               "createdAt": "createAt",
               "name": "name",
@@ -72,13 +73,60 @@ void main() {
       );
 
       verify(() => client.post(
-            Uri.parse("$kBaseUrl/$kCreateUserEndpoint"),
+            Uri.https(kBaseUrl, kCreateUserEndpoint),
             body: jsonEncode({
               "createdAt": "createAt",
               "name": "name",
               "avatar": "avatar",
             }),
           )).called(1);
+
+      verifyNoMoreInteractions(client);
+    });
+  });
+
+  group("getUsers", () {
+    const tUsers = [UserModel.empty()];
+    test('should return [List<UserModel>] when the status code is 200]',
+        () async {
+      when(
+        () => client.get(any()),
+      ).thenAnswer(
+        (_) async => http.Response(jsonEncode([tUsers.first.toMap()]), 200),
+      );
+
+      final result = await remoteDataSource.getUsers();
+
+      expect(result, equals(tUsers));
+
+      verify(
+        () => client.get(Uri.https(kBaseUrl, kGetUserEndpoint)),
+      ).called(1);
+
+      verifyNoMoreInteractions(client);
+    });
+
+    test("should throw [APIException] when the status code is not 200",
+        () async {
+      when(
+        () => client.get(any()),
+      ).thenAnswer(
+        (_) async => http.Response("Server down", 500),
+      );
+
+      final methodCall = remoteDataSource.getUsers;
+
+      expect(
+        () async => methodCall(),
+        throwsA(const ApiException(
+          message: 'Server down',
+          statusCode: 500,
+        )),
+      );
+
+      verify(
+        () => client.get(Uri.https(kBaseUrl, kGetUserEndpoint)),
+      ).called(1);
 
       verifyNoMoreInteractions(client);
     });
