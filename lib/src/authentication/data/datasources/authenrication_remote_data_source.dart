@@ -33,7 +33,6 @@ class AuthRemoteDataSrcImpl implements AuthenticationRemoteDataSource {
     // 1. check to make sure that it returns the right data when the response code is 200 or the proper response code
     // 2. check to make sure that it throws an exception when the response code is not bad one
     try {
-      print(name);
       final response = await _client.post(
         Uri.https(kBaseUrl, kCreateUserEndpoint),
         body: jsonEncode({
