@@ -13,13 +13,12 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => sl<AuthenticationCubit>(),
       child: MaterialApp(
-        title: 'Flutter Demo',
+        title: 'Bloc Clear Architecture',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
